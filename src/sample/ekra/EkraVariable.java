@@ -14,7 +14,6 @@ public class EkraVariable {
     public String getMmsAddress() {
         return mmsAddress;
     }
-
     public void setMmsAddress(String mmsAddress) {
         this.mmsAddress = mmsAddress;
     }
@@ -22,7 +21,6 @@ public class EkraVariable {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
     }
@@ -30,7 +28,6 @@ public class EkraVariable {
     public String getEkraAddress() {
         return ekraAddress;
     }
-
     public void setEkraAddress(String ekraAddress) {
         this.ekraAddress = getFormattedEkraAddress(ekraAddress);
     }
@@ -38,7 +35,6 @@ public class EkraVariable {
     public String getSrcEkraAddressAndTag() {
         return srcEkraAddressAndTag;
     }
-
     public void setSrcEkraAddressAndTag(String srcEkraAddressAndTag) {
         this.srcEkraAddressAndTag = srcEkraAddressAndTag;
     }
@@ -46,24 +42,21 @@ public class EkraVariable {
     public String getTagname() {
         return tagname;
     }
-
     public void setTagname(String tagname) {
         this.tagname = getFormattedTagname(tagname);
     }
 
     public boolean isValidVariable(){
-        return !(isVariableBad() || getSrcEkraAddressAndTag().equals("///") || getSrcEkraAddressAndTag().isEmpty() || getSrcEkraAddressAndTag().startsWith("///{"));
+        EkraRulesFilter ekraRulesFilter = new EkraRulesFilter(this);
+        return ekraRulesFilter.getTypeVariable() != EkraVariableType.NO_USE;
     }
 
     private String getFormattedEkraAddress(String address){
         return getGroup(address, "///(\\d+),");
     }
-
     private String getFormattedTagname(String tagname){
         String formattedTag = getGroup(tagname, "///\\d+,(.*)").replaceAll("\'", "");
-
         if(isLengthTagnameNotValid(formattedTag)) formattedTag = tryGetShortTagname(formattedTag);
-
         return formattedTag;
     }
     private String tryGetShortTagname(String tagname){
@@ -72,7 +65,9 @@ public class EkraVariable {
     private boolean isLengthTagnameNotValid(String tagname){
         return tagname.length() <= 50;
     }
-
+    private String getGroupByMmsaddress(){
+        return getGroup(getMmsAddress(), "(/\\w+/)");
+    }
     private String getGroup(String str, String pattern){
         String result = "";
 
@@ -83,66 +78,37 @@ public class EkraVariable {
         return result;
     }
 
+    private EkraVariableType getFilterType(){
+        EkraRulesFilter ekraRulesFilter = new EkraRulesFilter(this);
+        return ekraRulesFilter.getTypeVariable();
+    }
+
     //nameV460
     public String getVarnamePostfixForV460(String panel){
-        String postfix = "";
         String rzaText = ".rza";
-        if      (isVariableTS_led())            postfix = panel + rzaText + ".led" + getLedNumber();
-        else if (isVariableTI())                postfix = panel + rzaText + ".TI" + "." + getEkraAddress();
-        else if (isVariableTS_key())            postfix = panel + rzaText + ".SA" + getEkraAddress();
-        else if (isVariableTS_connect())        postfix = panel + rzaText + ".diagn";
-        else if (isvariableTS_fault())          postfix = panel + rzaText + ".fault_rza";
-        else if (isvariableTS_srab())           postfix = panel + rzaText + ".srab_rza";
-        else if (isVariableTU_ledCmd())         postfix = panel + rzaText + ".led.cmd";
-        else if (isVariableTS_lan())            postfix = panel + rzaText + ".lan" + "." + getEkraAddress();
-        else                                    postfix = panel + rzaText + ".ds" + getEkraAddress();
-        return postfix;
+        switch (getFilterType()){
+            case LED:
+                return panel + rzaText + ".led" + getLedNumber();
+            case LED_CMD:
+                return panel + rzaText + ".led.cmd";
+            case TI:
+                return panel + rzaText + ".TI" + "." + getEkraAddress();
+            case KEY:
+                return panel + rzaText + ".SA" + getEkraAddress();
+            case CONNECT:
+                return panel + rzaText + ".diagn";
+            case FAULT:
+                return panel + rzaText + ".fault_rza";
+            case SRAB:
+                return panel + rzaText + ".srab_rza";
+            case LAN:
+                return panel + rzaText + ".lan" + "." + getEkraAddress();
+            case DS:
+                return panel + rzaText + ".ds" + getEkraAddress();
+            default:
+                return panel + rzaText + ".no_import";
+        }
     }
-
-    private boolean isVariableTS(){
-        return getType().equals("BOOLEAN");
-    }
-    private boolean isvariableTS_srab(){
-        return getMmsAddress().contains("CALH1/GrWrn");
-    }
-    private boolean isvariableTS_fault(){
-        return getMmsAddress().contains("CALH1/GrAlm");
-    }
-    private boolean isVariableTS_led(){
-        return isVariableTS() && getMmsAddress().contains("ledGG");
-    }
-    private boolean isVariableTU_ledCmd(){
-        return getMmsAddress().endsWith("LLN0/LEDRs/Oper.ctlVal[CO]");
-    }
-    private boolean isVariableTS_connect(){
-        return getMmsAddress().endsWith("CALH1/Health/stVal[ST]");
-    }
-    private boolean isVariableTS_lan(){
-        return (getMmsAddress().endsWith("LCCH1/ChLiv/stVal[ST]") || getMmsAddress().endsWith("LCCH1/RedChLiv/stVal[ST]")) &&
-                (getEkraAddress().equals("214") || getEkraAddress().equals("215"));
-    }
-    private boolean isVariableTS_key(){
-        return isVariableTS() &&
-                ((getType().equals("Enum.Mod") && getMmsAddress().endsWith("Mod/stVal[ST]")) ||
-                        (getTagname().contains("SA") || getTagname().contains("Вывод")));
-    }
-    private boolean isVariableTI(){
-        return getType().equals("FLOAT32");
-    }
-    private boolean isVariableBad(){
-        return (getTagname().contains("Реле")) ||
-                (getTagname().startsWith("ПО")) ||
-                (getTagname().startsWith("Электронный ключ")) ||
-                (getTagname().contains("SET_D")) ||
-                (getTagname().startsWith("Вход №")) ||
-                (getTagname().startsWith("Вход N")) ||
-                (getTagname().startsWith("ИО")) ||
-                (getTagname().contains("вторичная величина")) ||
-                (getTagname().contains("VIRT")) ||
-                (getTagname().contains("GOOSEIN") || getTagname().contains("GOOSEOUT"));
-
-    }
-
     private String getLedNumber(){
         String result = "";
         String pattern = "/Ind(\\d+)/";
@@ -156,22 +122,32 @@ public class EkraVariable {
 
     //Matrix
     public String getMatrixByTypeVariable(){
-        String resultMatrix = "";
-        if     (isVariableTS_led())             resultMatrix = "Горит/Погас_ВМ";
-        else if(isVariableTS_key())             resultMatrix = "Вывод/Работа_BM";
-        else if(isvariableTS_srab())            resultMatrix = "ПС1_Срабатывание_снято/1_0";
-        else if(isvariableTS_fault())           resultMatrix = "ПС2_Неисправность_норма/1_0";
-        else if(isVariableTS_connect())         resultMatrix = "";
-        else if(isVariableTU_ledCmd())          resultMatrix = "ОС_Сигнал/1";
-        else if(isVariableTS_lan())             resultMatrix = "Норма/Неисправность_GM3";
-        else if(isVariableTS())                 resultMatrix = "ПС2_Сигнал_норма/1_0";
-        else                                    resultMatrix = "";
-        return resultMatrix;
+        switch (getFilterType()){
+            case LED:
+                return "Горит/Погас_ВМ";
+            case LED_CMD:
+                return "ОС_Сигнал/1";
+            case TI:
+                return "";
+            case KEY:
+                return "Вывод/Работа_BM";
+            case CONNECT:
+                return "";
+            case FAULT:
+                return "ПС2_Неисправность_норма/1_0";
+            case SRAB:
+                return "ПС1_Срабатывание_снято/1_0";
+            case LAN:
+                return "Норма/Неисправность_GM3";
+            case DS:
+                return "ПС2_Сигнал_норма/1_0";
+            default:
+                return "ПС2_Сигнал_норма/1_0";
+        }
     }
     public String isMatrixActive(){
         return getMatrixByTypeVariable().isEmpty() ? "FALSE" : "TRUE";
     }
-
 
     @Override
     public String toString()

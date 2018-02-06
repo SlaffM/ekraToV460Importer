@@ -13,11 +13,9 @@ public class EkraVariables {
         fileCsv = file;
         variables = ekraVariables;
     }
-
     public EkraVariables(String file){
         this(file, new ArrayList<>());
     }
-
     public EkraVariables(){
         this(fileCsv, new ArrayList<>());
     }

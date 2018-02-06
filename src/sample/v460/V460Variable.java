@@ -9,20 +9,14 @@ public class V460Variable {
     V460Variable(TreeMap<Integer, FieldProperty> fields){
         this.fields = fields;
     }
-
     public V460Variable(){
         this(new TreeMap<>());
     }
-
     V460Variable(V460Variable otherV460Variable){
         this(otherV460Variable.getFields());
     }
 
     public TreeMap<Integer, FieldProperty> getFields() { return fields; }
-
-    public int countFields(){
-        return getFields().size();
-    }
 
     public void addProperty(int key, FieldProperty prop){
         fields.put(key, prop);
@@ -57,7 +51,6 @@ public class V460Variable {
         fieldProperty.setValue(dataValue);
 
         return fieldProperty;
-
     }
 
     @Override
