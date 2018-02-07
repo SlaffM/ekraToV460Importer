@@ -1,8 +1,5 @@
 package sample.v460;
 
-
-import java.util.Map;
-
 public class FieldProperty {
 
     private String Name;
@@ -11,7 +8,6 @@ public class FieldProperty {
     public String getName() {
         return Name;
     }
-
     public void setName(String name) {
         Name = name;
     }
@@ -19,7 +15,6 @@ public class FieldProperty {
     public String getValue() {
         return Value;
     }
-
     public void setValue(String value) {
         Value = value;
     }

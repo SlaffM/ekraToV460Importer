@@ -24,6 +24,8 @@ public class Controller {
     public TextField netAddr;
     public Button startBtn;
 
+    private String readyV460Headers;
+
     public void startGenerate(ActionEvent actionEvent) throws IOException {
 
         XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream("./template.xlsx"));
@@ -34,7 +36,7 @@ public class Controller {
 
         ArrayList readyV460Variables = createReadyV460Variables(ekraVariables, v460Variables);
 
-        V460CsvWriter.write(readyV460Variables);
+        V460CsvWriter.write(readyV460Variables, readyV460Headers);
 
     }
 
@@ -62,14 +64,9 @@ public class Controller {
 
             }
 
-            if(rowNumber == 0){
-                listV460Variables.add(rowNumber, newV460Variable.getHeadersToCsv());
-                rowNumber++;
-                continue;
-            }
+            if(rowNumber == 0) readyV460Headers = newV460Variable.getHeadersToCsv();
 
-            listV460Variables.add(rowNumber, newV460Variable.toStringForWriteCSV());
-            rowNumber++;
+            listV460Variables.add(newV460Variable.toStringForWriteCSV());
         }
 
         return listV460Variables;
