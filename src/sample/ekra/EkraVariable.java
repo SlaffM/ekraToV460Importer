@@ -55,8 +55,12 @@ public class EkraVariable {
         return getGroup(address, "///(\\d+),");
     }
     private String getFormattedTagname(String tagname){
-        String formattedTag = getGroup(tagname, "///\\d+,(.*)").replaceAll("\'", "");
-        if(isLengthTagnameNotValid(formattedTag)) formattedTag = tryGetShortTagname(formattedTag);
+        return getGroup(tagname, "///\\d+,(.*)").replaceAll("\'", "");
+    }
+    public String getFormattedTagnameForV460(){
+        String formattedTag = getTagname().trim();
+        if(isTagnameEmptyOrSlash(formattedTag))     formattedTag = getTagnameByEkraVariableType(getFilterType());
+        if(isLengthTagnameNotValid(formattedTag))   formattedTag = tryGetShortTagname(formattedTag);
         return formattedTag;
     }
     private String tryGetShortTagname(String tagname){
@@ -84,29 +88,33 @@ public class EkraVariable {
     }
 
     //nameV460
-    public String getVarnamePostfixForV460(String panel){
-        String rzaText = ".rza";
+    public String getVarnamePostfixByTypeVariable(String panel){
+        String textPanelAndRza = panel + ".rza";
         switch (getFilterType()){
             case LED:
-                return panel + rzaText + ".led" + getLedNumber();
+                return textPanelAndRza + ".Led" + getLedNumber();
             case LED_CMD:
-                return panel + rzaText + ".led.cmd";
+                return textPanelAndRza + ".Led.cmd";
+            case LED_TEST:
+                return textPanelAndRza + ".Led16";
             case TI:
-                return panel + rzaText + ".TI" + "." + getEkraAddress();
-            case KEY:
-                return panel + rzaText + ".SA" + getEkraAddress();
+                return textPanelAndRza + ".TI" + "." + getEkraAddress();
+            case KEY_LOCAL: case KEY_VYVOD: case KEY_RABOTA: case KEY_OTHER:
+                return textPanelAndRza + ".SA" + getEkraAddress();
+            case SG:
+                return textPanelAndRza + ".SG" + getEkraAddress();
             case CONNECT:
-                return panel + rzaText + ".diagn";
+                return textPanelAndRza + ".Connect";
             case FAULT:
-                return panel + rzaText + ".fault_rza";
+                return textPanelAndRza + ".Failure_rza";
             case SRAB:
-                return panel + rzaText + ".srab_rza";
+                return textPanelAndRza + ".Srab_rza";
             case LAN:
-                return panel + rzaText + ".lan" + "." + getEkraAddress();
+                return textPanelAndRza + ".lan" + "." + getEkraAddress();
             case DS:
-                return panel + rzaText + ".ds" + getEkraAddress();
+                return textPanelAndRza + ".ds" + getEkraAddress();
             default:
-                return panel + rzaText + ".no_import";
+                return textPanelAndRza + ".no_import";
         }
     }
     private String getLedNumber(){
@@ -123,30 +131,47 @@ public class EkraVariable {
     //Matrix
     public String getMatrixByTypeVariable(){
         switch (getFilterType()){
-            case LED:
-                return "Горит/Погас_ВМ";
+            case LED: case LED_TEST:
+                return "Горит/Погас_BM";
             case LED_CMD:
                 return "ОС_Сигнал/1";
-            case TI:
-                return "";
-            case KEY:
-                return "Вывод/Работа_BM";
-            case CONNECT:
-                return "";
+            case KEY_RABOTA: case KEY_OTHER: case SG:
+                return "ОС_Введено_выведено/1_0";
+            case KEY_VYVOD:
+                return "ОС_Введено_выведено/0_1";
+            case KEY_LOCAL:
+                return "РЗА_Комплект_Вывод/Работа_BM";
             case FAULT:
-                return "ПС2_Неисправность_норма/1_0";
+                return "ПС1_Неисправность_норма/1_0";
             case SRAB:
-                return "ПС1_Срабатывание_снято/1_0";
+                return "ПС1_Сигнал_норма/1_0";
             case LAN:
-                return "Норма/Неисправность_GM3";
+                return "ПС2_Неисправность_норма/0_1";
             case DS:
                 return "ПС2_Сигнал_норма/1_0";
+            case CONNECT:
+                return "Потеряна/Восстановлена_IV_GM3";
             default:
-                return "ПС2_Сигнал_норма/1_0";
+                return "";
         }
     }
     public String isMatrixActive(){
         return getMatrixByTypeVariable().isEmpty() ? "FALSE" : "TRUE";
+    }
+
+
+    private String getTagnameByEkraVariableType(EkraVariableType ekraVariableType){
+        switch (ekraVariableType){
+            case LED_CMD:
+                return "Квитировать светодиоды";
+            case CONNECT:
+                return "Состояние связи";
+            default:
+                return "Сигнал не определен";
+        }
+    }
+    private boolean isTagnameEmptyOrSlash(String tagname){
+        return tagname.isEmpty() || tagname.equals("///");
     }
 
     @Override

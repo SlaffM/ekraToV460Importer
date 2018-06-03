@@ -53,10 +53,10 @@ public class Controller {
 
                 FieldProperty fieldProperty = entry.getValue();
 
-                if (fieldProperty.getName().equals("VariableName"))     fieldProperty.setValue(ekraVariable.getVarnamePostfixForV460(panel.getText()));
+                if (fieldProperty.getName().equals("VariableName"))     fieldProperty.setValue(ekraVariable.getVarnamePostfixByTypeVariable(panel.getText()));
                 if (fieldProperty.getName().equals("DriverName"))       fieldProperty.setValue(driverName.getText());
                 if (fieldProperty.getName().equals("Matrix"))           fieldProperty.setValue(ekraVariable.getMatrixByTypeVariable());
-                if (fieldProperty.getName().equals("Tagname"))          fieldProperty.setValue(tagnamePrefix.getText() + ekraVariable.getTagname());
+                if (fieldProperty.getName().equals("Tagname"))          fieldProperty.setValue(tagnamePrefix.getText() + ekraVariable.getFormattedTagnameForV460());
                 if (fieldProperty.getName().equals("Recourceslabel"))   fieldProperty.setValue(ekraVariable.getEkraAddress());
                 if (fieldProperty.getName().equals("NetAddr"))          fieldProperty.setValue(netAddr.getText());
                 if (fieldProperty.getName().equals("SymbAddr"))         fieldProperty.setValue(panel.getText()+"!" + ekraVariable.getMmsAddress());

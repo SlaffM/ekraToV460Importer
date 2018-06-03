@@ -11,7 +11,6 @@ import java.util.Map;
 public class V460Variables {
 
     private ArrayList<V460Variable> variables;
-
     private static Map<Integer, String> headers;
 
     public V460Variables(){
@@ -70,7 +69,6 @@ public class V460Variables {
         }
         return v460Variable;
     }
-
 
     private static boolean isBuildHeadersReady(Row rowHeaders){
         boolean result = false;

@@ -1,8 +1,12 @@
 package sample.ekra;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EkraVariables {
 
@@ -42,6 +46,8 @@ public class EkraVariables {
 
         }
         return ekraVariables;
+
+
 
     }
 
