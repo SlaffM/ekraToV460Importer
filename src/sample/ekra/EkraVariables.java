@@ -7,10 +7,10 @@ import java.util.ArrayList;
 
 public class EkraVariables {
 
-    public static ArrayList<EkraVariable> buildEkraVariables(InputStreamReader inputStreamReader) throws IOException {
+    public static ArrayList<EkraVariable> buildEkraVariables(String file) throws IOException {
 
         CSVReader reader = new CSVReader(
-                inputStreamReader,
+                new InputStreamReader(new FileInputStream(file), "CP1251"),
                 ';' ,
                 '"' ,
                 0);

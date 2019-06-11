@@ -10,10 +10,13 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("sample.fxml"));
+        Parent root = loader.load();
         primaryStage.setTitle("import ekra variables to v460");
-        primaryStage.setScene(new Scene(root, 460, 260));
+        primaryStage.setScene(new Scene(root, 450, 380));
         primaryStage.show();
+        Controller controller = loader.getController();
+        controller.setStage(primaryStage);
     }
 
     public static void main(String[] args) {
