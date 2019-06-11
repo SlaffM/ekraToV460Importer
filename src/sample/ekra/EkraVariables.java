@@ -1,68 +1,33 @@
 package sample.ekra;
 
 import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.bean.CsvToBean;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class EkraVariables {
 
-    private static String fileCsv;
-    private ArrayList<EkraVariable> variables;
+    public static ArrayList<EkraVariable> buildEkraVariables(InputStreamReader inputStreamReader) throws IOException {
 
-    public EkraVariables(String file, ArrayList<EkraVariable> ekraVariables){
-        fileCsv = file;
-        variables = ekraVariables;
-    }
-    public EkraVariables(String file){
-        this(file, new ArrayList<>());
-    }
-    public EkraVariables(){
-        this(fileCsv, new ArrayList<>());
-    }
+        CSVReader reader = new CSVReader(
+                inputStreamReader,
+                ';' ,
+                '"' ,
+                0);
 
-    public static EkraVariables buildEkraVariables(String file) throws IOException {
-
-        EkraVariables ekraVariables = new EkraVariables();
-
-        CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(file),"CP1251"), ';' , '"' , 0);
         String[] nextLine;
         while ((nextLine = reader.readNext()) != null) {
-            if (nextLine != null) {
-                EkraVariable ekraVariable = new EkraVariable();
-                ekraVariable.setMmsAddress(nextLine[0]);
-                ekraVariable.setType(nextLine[1]);
-                ekraVariable.setEkraAddress(nextLine[3]);
-                ekraVariable.setTagname(nextLine[3]);
-                ekraVariable.setSrcEkraAddressAndTag(nextLine[3]);
 
-                if (ekraVariable.isValidVariable()) {
-                    ekraVariables.addVariable(ekraVariable);
-                }
-            }
+            String mms = nextLine[0];
+            String type = nextLine[1];
+            String ekraAddress = nextLine[3];
+            String tagName = nextLine[3];
+            String srcAddressAndTag = nextLine[3];
 
+            new EkraVariableV2(mms, type, ekraAddress, tagName, srcAddressAndTag);
         }
-        return ekraVariables;
 
-
-
-    }
-
-    private void addVariable(EkraVariable ekraVariable){
-        variables.add(ekraVariable);
-    }
-
-    public ArrayList<EkraVariable> getVariables() {
-        return variables;
-    }
-
-    public void printVariables(){
-        for(EkraVariable ekraVariable : getVariables()){
-            System.out.println(ekraVariable.toString());
-        }
+        return EkraVariable.getAllEkravariables();
     }
 
 }

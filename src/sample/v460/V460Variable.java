@@ -6,27 +6,27 @@ import java.util.*;
 public class V460Variable {
     private TreeMap<Integer, FieldProperty> fields;
 
-    V460Variable(TreeMap<Integer, FieldProperty> fields){
+    private V460Variable(TreeMap<Integer, FieldProperty> fields){
         this.fields = fields;
     }
-    public V460Variable(){
+    V460Variable(){
         this(new TreeMap<>());
     }
-    V460Variable(V460Variable otherV460Variable){
+    private V460Variable(V460Variable otherV460Variable){
         this(otherV460Variable.getFields());
     }
 
     public TreeMap<Integer, FieldProperty> getFields() { return fields; }
 
-    public void addProperty(int key, FieldProperty prop){
+    void addProperty(int key, FieldProperty prop){
         fields.put(key, prop);
     }
 
-    public V460Variable copy(){
+    V460Variable copy(){
         return new V460Variable(this);
     }
 
-    public FieldProperty buildVariableField(Cell dataCell, Map<Integer, String> headers){
+    FieldProperty buildVariableField(Cell dataCell, Map<Integer, String> headers){
 
         FieldProperty fieldProperty = new FieldProperty();
 
@@ -61,28 +61,26 @@ public class V460Variable {
     }
 
     public String getHeadersToCsv(){
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for(Map.Entry<Integer, FieldProperty> entry : getFields().entrySet()){
-            Map.Entry<Integer, FieldProperty> fieldPropertyEntry = entry;
-            FieldProperty fieldProperty = fieldPropertyEntry.getValue();
+            FieldProperty fieldProperty = entry.getValue();
 
             if(fieldProperty.getName().equals("EkraTypeIgnore")) continue;
-            result = result + fieldProperty.getName() + "\t";
+            result.append(fieldProperty.getName()).append("\t");
         }
-        return result;
+        return result.toString();
     }
 
     public String toStringForWriteCSV(){
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for(Map.Entry<Integer, FieldProperty> entry : getFields().entrySet()){
-            Map.Entry<Integer, FieldProperty> fieldPropertyEntry = entry;
-            FieldProperty fieldProperty = fieldPropertyEntry.getValue();
+            FieldProperty fieldProperty = entry.getValue();
 
             if(fieldProperty.getName().equals("EkraTypeIgnore")) continue;
-            result = result + fieldProperty.getValue() + "\t";
+            result.append(fieldProperty.getValue()).append("\t");
         }
-        return result;
+        return result.toString();
     }
 }

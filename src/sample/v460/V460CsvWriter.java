@@ -12,7 +12,8 @@ public class V460CsvWriter {
         CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csv), "cp1251"), '\t', CSVWriter.NO_QUOTE_CHARACTER);
 
         writeRecord(writer, headers);
-        for(String lineValues : listVariables){ writeRecord(writer, lineValues); }
+
+        listVariables.forEach(s -> writeRecord(writer, s));
 
         writer.close();
     }

@@ -48,7 +48,6 @@ public class V460Variables {
                 }
 
                 v460Variable.addProperty(columnIndex, fieldProperty);
-
             }
 
             v460Variables.addVariable(v460Variable);

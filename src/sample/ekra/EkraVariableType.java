@@ -3,6 +3,7 @@ package sample.ekra;
 public enum EkraVariableType {
     DS,
     SRAB,
+    SRAB_OTKL,
     FAULT,
     LED,
     LED_CMD,

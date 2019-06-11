@@ -1,52 +1,146 @@
 package sample.ekra;
 
+import sample.helpers.Helpers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EkraVariable {
+public class EkraVariable implements Comparable<EkraVariable>{
 
     private String mmsAddress;
     private String type;
     private String ekraAddress;
     private String tagname;
     private String srcEkraAddressAndTag;
+    private Integer ekraAddressInt;
+
+    private int id;
+    private static Map<Integer, EkraVariable> allEkraVariables;
+    private static int countId = 0;
+
+    public EkraVariable(EkraVariable ekraVariable){
+        new EkraVariable(
+                ekraVariable.mmsAddress,
+                ekraVariable.type,
+                ekraVariable.ekraAddress,
+                ekraVariable.tagname,
+                ekraVariable.srcEkraAddressAndTag
+        );
+    }
+
+
+    public EkraVariable(
+            String mmsAddress,
+            String type,
+            String ekraAddress,
+            String tagname,
+            String srcEkraAddressAndTag
+            //Integer ekraAddressInt
+    ){
+        setMmsAddress(mmsAddress);
+        setType(type);
+        setEkraAddress(ekraAddress);
+        setTagname(tagname);
+        setSrcEkraAddressAndTag(srcEkraAddressAndTag);
+        setEkraAddressInt(this.ekraAddress);
+
+        if (!hasEkraVariable()){
+            countId++;
+            this.id = countId;
+            if(isValidVariable())
+                allEkraVariables.put(id, this);
+        }
+    }
+
+
+    private boolean hasEkraVariable(){
+        for(EkraVariable ekraVariable: getAllEkravariables()){
+            if(ekraVariable.equals(this) && ekraVariable.hashCode() == this.hashCode()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EkraVariable that = (EkraVariable) o;
+        return  getMmsAddress().equals(that.getMmsAddress());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mmsAddress, ekraAddress);
+    }
+
+    public static ArrayList<EkraVariable> getAllEkravariables(){
+        if (allEkraVariables == null){
+            allEkraVariables = new HashMap<>();
+        }
+        return new ArrayList<>(allEkraVariables.values());
+    }
+
+    public static int getEkraVariablesCount(){
+        return getAllEkravariables().size();
+    }
+
 
     public String getMmsAddress() {
         return mmsAddress;
     }
-    public void setMmsAddress(String mmsAddress) {
+    void setMmsAddress(String mmsAddress) {
         this.mmsAddress = mmsAddress;
     }
 
     public String getType() {
         return type;
     }
-    public void setType(String type) {
+    void setType(String type) {
         this.type = type;
     }
 
     public String getEkraAddress() {
         return ekraAddress;
     }
-    public void setEkraAddress(String ekraAddress) {
+    void setEkraAddress(String ekraAddress) {
         this.ekraAddress = getFormattedEkraAddress(ekraAddress);
+        setEkraAddressInt(this.ekraAddress);
     }
 
-    public String getSrcEkraAddressAndTag() {
+    public void setEkraAddressInt(String ekraAddress) {
+        String findInt = Helpers.getTextWithPattern(ekraAddress, "(\\d+)");
+        if(!findInt.isEmpty())
+            this.ekraAddressInt = Integer.parseInt(findInt);
+        else
+            this.ekraAddressInt = 0;
+    }
+
+    public Integer getEkraAddressInt() {
+        return ekraAddressInt;
+    }
+
+    String getSrcEkraAddressAndTag() {
         return srcEkraAddressAndTag;
     }
-    public void setSrcEkraAddressAndTag(String srcEkraAddressAndTag) {
+    void setSrcEkraAddressAndTag(String srcEkraAddressAndTag) {
         this.srcEkraAddressAndTag = srcEkraAddressAndTag;
     }
 
-    public String getTagname() {
+    String getTagname() {
         return tagname;
     }
-    public void setTagname(String tagname) {
+    void setTagname(String tagname) {
         this.tagname = getFormattedTagname(tagname);
     }
 
-    public boolean isValidVariable(){
+    boolean isValidVariable(){
         EkraRulesFilter ekraRulesFilter = new EkraRulesFilter(this);
         return ekraRulesFilter.getTypeVariable() != EkraVariableType.NO_USE;
     }
@@ -63,13 +157,13 @@ public class EkraVariable {
         if(isLengthTagnameNotValid(formattedTag))   formattedTag = tryGetShortTagname(formattedTag);
         return formattedTag;
     }
-    private String tryGetShortTagname(String tagname){
+    String tryGetShortTagname(String tagname){
         return tagname.replaceAll("Откл\\w+", "Откл.");
     }
-    private boolean isLengthTagnameNotValid(String tagname){
+    boolean isLengthTagnameNotValid(String tagname){
         return tagname.length() <= 50;
     }
-    private String getGroupByMmsaddress(){
+    protected String getGroupByMmsaddress(){
         return getGroup(getMmsAddress(), "(/\\w+/)");
     }
     private String getGroup(String str, String pattern){
@@ -82,10 +176,15 @@ public class EkraVariable {
         return result;
     }
 
-    private EkraVariableType getFilterType(){
+    EkraVariableType getFilterType(){
         EkraRulesFilter ekraRulesFilter = new EkraRulesFilter(this);
         return ekraRulesFilter.getTypeVariable();
     }
+
+    boolean isTagnameLed(EkraVariableType varType){
+        return varType == EkraVariableType.LED || varType == EkraVariableType.LED_TEST;
+    }
+
 
     //nameV460
     public String getVarnamePostfixByTypeVariable(String panel){
@@ -111,7 +210,7 @@ public class EkraVariable {
                 return textPanelAndRza + ".Srab_rza";
             case LAN:
                 return textPanelAndRza + ".lan" + "." + getEkraAddress();
-            case DS:
+            case DS: case SRAB_OTKL:
                 return textPanelAndRza + ".ds" + getEkraAddress();
             default:
                 return textPanelAndRza + ".no_import";
@@ -145,6 +244,8 @@ public class EkraVariable {
                 return "ПС1_Неисправность_норма/1_0";
             case SRAB:
                 return "ПС1_Сигнал_норма/1_0";
+            case SRAB_OTKL:
+                return "АС_Сигнал_норма/1_0";
             case LAN:
                 return "ПС2_Неисправность_норма/0_1";
             case DS:
@@ -159,8 +260,7 @@ public class EkraVariable {
         return getMatrixByTypeVariable().isEmpty() ? "FALSE" : "TRUE";
     }
 
-
-    private String getTagnameByEkraVariableType(EkraVariableType ekraVariableType){
+    String getTagnameByEkraVariableType(EkraVariableType ekraVariableType){
         switch (ekraVariableType){
             case LED_CMD:
                 return "Квитировать светодиоды";
@@ -170,7 +270,7 @@ public class EkraVariable {
                 return "Сигнал не определен";
         }
     }
-    private boolean isTagnameEmptyOrSlash(String tagname){
+    boolean isTagnameEmptyOrSlash(String tagname){
         return tagname.isEmpty() || tagname.equals("///");
     }
 
@@ -180,5 +280,10 @@ public class EkraVariable {
         return "EkraVariable [mms=" + getMmsAddress() + ", type=" + getType() +
                 ", ekraAddress=" + getEkraAddress() + ", tagname=" + getTagname() + "]";
     }
+
+    public int compareTo(EkraVariable ekraVariable) {
+        return this.getEkraAddressInt().compareTo(ekraVariable.getEkraAddressInt());
+    }
+
 
 }

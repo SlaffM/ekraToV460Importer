@@ -6,16 +6,20 @@ public class EkraRulesFilter {
     EkraRulesFilter(EkraVariable ekraVariable){
         this.ekraVariable = ekraVariable;
     }
-    public EkraVariable getEkraVariable() {
+
+    EkraRulesFilter(EkraVariableV2 ekraVariable){
+        this.ekraVariable = ekraVariable;
+    }
+    private EkraVariable getEkraVariable() {
         return ekraVariable;
     }
 
-    public EkraVariableType getTypeVariable(){
+    EkraVariableType getTypeVariable(){
         if (isVariableNoUsing())                return EkraVariableType.NO_USE;
         else if (isVariableTS_led())            return EkraVariableType.LED;
         else if (isVariableTU_led_cmd())        return EkraVariableType.LED_CMD;
         else if (isVariableTU_led_test())       return EkraVariableType.LED_TEST;
-        else if (isVariableTI())                return EkraVariableType.TI;
+        else if (isVariableTI())                return EkraVariableType.NO_USE;
         else if (isVariableTS_key_local())      return EkraVariableType.KEY_LOCAL;
         else if (isVariableTS_key_vyvod())      return EkraVariableType.KEY_VYVOD;
         else if (isVariableTS_key_rabota())     return EkraVariableType.KEY_RABOTA;
@@ -24,6 +28,7 @@ public class EkraRulesFilter {
         else if (isVariableTS_connect())        return EkraVariableType.CONNECT;
         else if (isvariableTS_fault())          return EkraVariableType.FAULT;
         else if (isVariableTS_srab())           return EkraVariableType.SRAB;
+        else if (isVariableTS_srabOtkl())       return EkraVariableType.SRAB_OTKL;
         else if (isVariableTS_lan())            return EkraVariableType.LAN;
         else if (isVariableTS_ds())             return EkraVariableType.DS;
         else                                    return EkraVariableType.NO_USE;
@@ -37,6 +42,9 @@ public class EkraRulesFilter {
     }
     private boolean isVariableTS_srab(){
         return isVariableTS() && getEkraVariable().getMmsAddress().endsWith("CALH1/GrWrn/stVal[ST]");
+    }
+    private boolean isVariableTS_srabOtkl(){
+        return isVariableTS() && getEkraVariable().getTagname().contains("Откл");
     }
     private boolean isvariableTS_fault(){
         return isVariableTS() && getEkraVariable().getMmsAddress().endsWith("CALH1/GrAlm/stVal[ST]");
@@ -58,7 +66,8 @@ public class EkraRulesFilter {
                 (getEkraVariable().getEkraAddress().equals("214") || getEkraVariable().getEkraAddress().equals("215"));
     }
     private boolean isVariableTS_key_vyvod(){
-        return getEkraVariable().getTagname().contains("Вывод");
+        return getEkraVariable().getTagname().contains("Вывод") ||
+                getEkraVariable().getTagname().contains("Выв");
     }
     private boolean isVariableTS_key_rabota(){
         return (getEkraVariable().getTagname().contains("SA") &&
@@ -80,7 +89,7 @@ public class EkraRulesFilter {
         return  (getEkraVariable().getType().equals("FLOAT32") ||
                 getEkraVariable().getMmsAddress().endsWith("/cVal.mag.f[MX]")) && !getEkraVariable().getEkraAddress().isEmpty();
     }
-    private boolean isSrcTagContainsSlashOrEmpty(){
+    protected boolean isSrcTagContainsSlashOrEmpty(){
         return getEkraVariable().getSrcEkraAddressAndTag().equals("///") || getEkraVariable().getSrcEkraAddressAndTag().isEmpty() ||
                 getEkraVariable().getSrcEkraAddressAndTag().startsWith("///{");
     }
