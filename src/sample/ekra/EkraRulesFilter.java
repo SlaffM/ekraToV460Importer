@@ -6,10 +6,6 @@ public class EkraRulesFilter {
     EkraRulesFilter(EkraVariable ekraVariable){
         this.ekraVariable = ekraVariable;
     }
-
-    EkraRulesFilter(EkraVariableV2 ekraVariable){
-        this.ekraVariable = ekraVariable;
-    }
     private EkraVariable getEkraVariable() {
         return ekraVariable;
     }

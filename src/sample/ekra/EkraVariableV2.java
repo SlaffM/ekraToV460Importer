@@ -2,11 +2,6 @@ package sample.ekra;
 
 public class EkraVariableV2 extends EkraVariable {
 
-
-    public EkraVariableV2(EkraVariable ekraVariable) {
-        super(ekraVariable);
-    }
-
     public EkraVariableV2(String mmsAddress, String type, String ekraAddress, String tagname, String srcEkraAddressAndTag) {
         super(mmsAddress, type, ekraAddress, tagname, srcEkraAddressAndTag);
     }

@@ -14,6 +14,7 @@ public class Main extends Application {
         Parent root = loader.load();
         primaryStage.setTitle("import ekra variables to v460");
         primaryStage.setScene(new Scene(root, 450, 380));
+        primaryStage.setResizable(false);
         primaryStage.show();
         Controller controller = loader.getController();
         controller.setStage(primaryStage);

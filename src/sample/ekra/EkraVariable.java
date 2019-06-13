@@ -39,7 +39,6 @@ public class EkraVariable implements Comparable<EkraVariable>{
             String ekraAddress,
             String tagname,
             String srcEkraAddressAndTag
-            //Integer ekraAddressInt
     ){
         setMmsAddress(mmsAddress);
         setType(type);
